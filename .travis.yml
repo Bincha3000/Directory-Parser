@@ -3,4 +3,5 @@ python:
   - "3.6"
 
 script:
-  - python parcer.py flake8
+  - python parcer.py
+  - flake8 parcer.py
