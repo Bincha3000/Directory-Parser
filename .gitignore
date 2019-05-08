@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#folders checking programs
+/django
+/flask
+/pyramid
+/reddit
+/requests
+/sqlalchemy

@@ -1,9 +1,9 @@
 import ast
 import os
 import collections
-
+import nltk
 from nltk import pos_tag
-
+nltk.download('averaged_perceptron_tagger')
 
 def flat(_list):
     """ [(1,2), (3,4)] -> [1, 2, 3, 4]"""
