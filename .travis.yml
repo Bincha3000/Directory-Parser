@@ -1,7 +1,8 @@
 language: python
 python:
   - "3.6"
-
+install:
+  - "pip install flake8"
 script:
   - python parcer.py
   - flake8 parcer.py
