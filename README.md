@@ -11,6 +11,7 @@ __pep8 Chek__ - flake8>=3.7.0,<3.8.0
 ## links
 [NLTK](https://www.nltk.org/ "Natural Language Toolkit")
 
+##Examples of using
 ```
 total 24 files
 trees generated
