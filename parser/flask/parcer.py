@@ -7,6 +7,7 @@ from nltk import pos_tag
 
 nltk.download('averaged_perceptron_tagger')
 
+Path = ''
 
 def flat(_list):
     """ [(1,2), (3,4)] -> [1, 2, 3, 4]"""
@@ -19,19 +20,14 @@ def is_verb(word):
     pos_info = pos_tag([word])
     return pos_info[0][1] == 'VB'
 
-
 def check_py_files(path, max_len):
     filenames = []
-    flag = False
     for dirname, dirs, files in os.walk(path, topdown=True):
         for file in files:
-            if file.endswith('.py') and len(filenames) <= max_len:
+            if file.endswith('.py') and len(filenames) <= 100:
                 filenames.append(os.path.join(dirname, file))
-                if len(filenames) == max_len:
-                    return filenames
     print('total %s files' % len(filenames))
     return filenames
-
 
 def get_trees(with_filenames=False, with_file_content=False):
     filenames = check_py_files(path, max_len=100)
@@ -67,7 +63,7 @@ def get_all_words_in_path(path):
     trees = [t for t in get_trees(path) if t]
     function_names = [
         f for f in flat([get_all_names(t) for t in trees])
-        if not magic_method(f)
+        if not (f.startswith('__') and f.endswith('__'))
         ]
 
     def split_snake_case_name_to_words(name):
@@ -76,13 +72,14 @@ def get_all_words_in_path(path):
 
 
 def get_top_verbs_in_path(path, top_size=10):
+    global Path
     Path = path
     trees = [t for t in get_trees(None) if t]
     fncs = [
         f for f in flat(
             [[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in trees]
             )
-        if not magic_method(f)
+        if not (f.startswith('__') and f.endswith('__'))
         ]
 
     print('functions extracted')
@@ -96,34 +93,28 @@ def get_top_functions_names_in_path(path, top_size=10):
         f for f in flat(
             [[node.name.lower() for node in ast.walk(t) if isinstance(node, ast.FunctionDef)] for t in t]
             )
-        if not magic_method(f)
+        if not (f.startswith('__') and f.endswith('__'))
         ]
 
     return collections.Counter(nms).most_common(top_size)
 
-def magic_method(f):
-    if (f.startswith('__') and f.startswith('__')):
-        return True
+
+wds = []
+projects = [
+    'django',
+    'flask',
+    'pyramid',
+    'reddit',
+    'requests',
+    'sqlalchemy',
+]
 
 
-if __name__ == "__main__":
-    wds = []
-    projects = [
-        'django',
-        'flask',
-        'pyramid',
-        'reddit',
-        'requests',
-        'sqlalchemy',
-    ]
+for project in projects:
+    path = os.path.join('.', project)
+    wds += get_top_verbs_in_path(path)
 
-
-    for project in projects:
-        path = os.path.join('.', project)
-        wds += get_top_verbs_in_path(path)
-
-
-    TOP_SIZE = 200
-    print('total %s words, %s unique' % (len(wds), len(set(wds))))
-    for word, occurence in collections.Counter(wds).most_common(TOP_SIZE):
-        print(word, occurence)
+top_size = 200
+print('total %s words, %s unique' % (len(wds), len(set(wds))))
+for word, occurence in collections.Counter(wds).most_common(top_size):
+    print(word, occurence)
